@@ -1,0 +1,11 @@
+input_file=alpha_test\input_audio\female_poly_vocal_piano_C4.wav
+use_spleeter=False
+mode=hybrid
+mono_audio_used=alpha_test\input_audio\female_poly_vocal_piano_C4.wav
+ground_truth_source=cli
+ground_truth_hz=261.6255653005986
+midi_output=alpha_test\batch_runs\20260317_074612\output_midi\female_poly_vocal_piano_C4_hybrid_spleeter_off.mid
+figure_output=alpha_test\batch_runs\20260317_074612\figures\female_poly_vocal_piano_C4_hybrid_spleeter_off.png
+median_detected_hz=264.20884514594354
+absolute_frequency_error_hz=2.5832798453449186
+cents_error=17.01029037792152

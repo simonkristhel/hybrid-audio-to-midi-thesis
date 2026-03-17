@@ -1,0 +1,9 @@
+input_file=alpha_test\input_audio\male_poly_vocal_piano_C5.wav
+use_spleeter=True
+mode=hybrid
+mono_audio_used=alpha_test\batch_runs\20260316_170917\logs\male_poly_vocal_piano_C5\vocals.wav
+ground_truth_source=none
+ground_truth_hz=None
+midi_output=alpha_test\batch_runs\20260316_170917\output_midi\male_poly_vocal_piano_C5_hybrid_spleeter_on.mid
+figure_output=alpha_test\batch_runs\20260316_170917\figures\male_poly_vocal_piano_C5_hybrid_spleeter_on.png
+metrics=skipped_no_ground_truth

@@ -1,0 +1,11 @@
+input_file=alpha_test\input_audio\poly_vocal_piano_C4.wav
+use_spleeter=True
+mode=pyin
+mono_audio_used=alpha_test\logs\poly_vocal_piano_C4\vocals.wav
+ground_truth_source=cli
+ground_truth_hz=261.6255653005986
+midi_output=alpha_test\output_midi\poly_vocal_piano_C4_pyin_spleeter_on.mid
+figure_output=alpha_test\figures\poly_vocal_piano_C4_pyin_spleeter_on.png
+median_detected_hz=261.6255653005986
+absolute_frequency_error_hz=0.0
+cents_error=0.0

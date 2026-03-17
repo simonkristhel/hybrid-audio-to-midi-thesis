@@ -1,0 +1,11 @@
+input_file=C:\Users\Kristhel\Desktop\Thesis System\hybrid_audio_to_midi\alpha_test\input_audio\male_poly_vocal_piano_C5.wav
+use_spleeter=True
+mode=hybrid
+mono_audio_used=alpha_test\batch_runs\20260316_172308\logs\male_poly_vocal_piano_C5\vocals.wav
+ground_truth_source=cli
+ground_truth_hz=523.2511306011972
+midi_output=alpha_test\batch_runs\20260316_172308\output_midi\male_poly_vocal_piano_C5_hybrid_spleeter_on.mid
+figure_output=alpha_test\batch_runs\20260316_172308\figures\male_poly_vocal_piano_C5_hybrid_spleeter_on.png
+median_detected_hz=256.3158486113314
+absolute_frequency_error_hz=266.93528198986587
+cents_error=-1235.4970045648126

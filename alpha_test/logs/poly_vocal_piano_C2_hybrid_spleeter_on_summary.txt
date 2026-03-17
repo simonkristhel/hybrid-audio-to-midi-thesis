@@ -1,0 +1,11 @@
+input_file=alpha_test\input_audio\poly_vocal_piano_C2.wav
+use_spleeter=True
+mode=hybrid
+mono_audio_used=alpha_test\logs\poly_vocal_piano_C2\vocals.wav
+ground_truth_source=cli
+ground_truth_hz=65.40639132514966
+midi_output=alpha_test\output_midi\poly_vocal_piano_C2_hybrid_spleeter_on.mid
+figure_output=alpha_test\figures\poly_vocal_piano_C2_hybrid_spleeter_on.png
+median_detected_hz=1069.2532221360823
+absolute_frequency_error_hz=1003.8468308109326
+cents_error=4837.233751008955

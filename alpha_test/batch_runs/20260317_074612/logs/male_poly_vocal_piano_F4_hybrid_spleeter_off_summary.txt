@@ -1,0 +1,11 @@
+input_file=alpha_test\input_audio\male_poly_vocal_piano_F4.wav
+use_spleeter=False
+mode=hybrid
+mono_audio_used=alpha_test\input_audio\male_poly_vocal_piano_F4.wav
+ground_truth_source=cli
+ground_truth_hz=349.2282314330039
+midi_output=alpha_test\batch_runs\20260317_074612\output_midi\male_poly_vocal_piano_F4_hybrid_spleeter_off.mid
+figure_output=alpha_test\batch_runs\20260317_074612\figures\male_poly_vocal_piano_F4_hybrid_spleeter_off.png
+median_detected_hz=344.77996042379203
+absolute_frequency_error_hz=4.448271009211851
+cents_error=-22.193120431340894
