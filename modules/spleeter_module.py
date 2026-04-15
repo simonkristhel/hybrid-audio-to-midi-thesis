@@ -1,6 +1,28 @@
 import subprocess
-import os
+import shutil
+import sys
 from pathlib import Path
+
+
+def resolve_spleeter_executable() -> str:
+    """Resolve the Spleeter executable from the active environment or PATH."""
+    scripts_dir = Path(sys.executable).resolve().parent
+    candidates = [
+        scripts_dir / "spleeter.exe",
+        scripts_dir / "spleeter",
+    ]
+
+    for candidate in candidates:
+        if candidate.exists():
+            return str(candidate)
+
+    resolved = shutil.which("spleeter")
+    if resolved:
+        return resolved
+
+    raise FileNotFoundError(
+        "Could not find the Spleeter executable. Install it in the active environment or add it to PATH."
+    )
 
 
 def separate_monophonic_audio(
@@ -31,7 +53,7 @@ def separate_monophonic_audio(
     model = f"spleeter:{stems}stems"
 
     command = [
-        "spleeter",
+        resolve_spleeter_executable(),
         "separate",
         "-p", model,
         "-o", str(output_dir),

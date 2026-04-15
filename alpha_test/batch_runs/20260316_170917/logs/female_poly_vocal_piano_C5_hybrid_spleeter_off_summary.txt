@@ -1,9 +1,0 @@
-input_file=alpha_test\input_audio\female_poly_vocal_piano_C5.wav
-use_spleeter=False
-mode=hybrid
-mono_audio_used=alpha_test\input_audio\female_poly_vocal_piano_C5.wav
-ground_truth_source=none
-ground_truth_hz=None
-midi_output=alpha_test\batch_runs\20260316_170917\output_midi\female_poly_vocal_piano_C5_hybrid_spleeter_off.mid
-figure_output=alpha_test\batch_runs\20260316_170917\figures\female_poly_vocal_piano_C5_hybrid_spleeter_off.png
-metrics=skipped_no_ground_truth

@@ -1,0 +1,7 @@
+file,ground_truth,recommended_spleeter,notes
+Sine Wave 261.63 Hz C4.wav,C4,false,Monophonic synthetic sine wave
+Grand Piano - 261.63 Hz C4.wav,C4,false,Monophonic grand piano sample
+Solo Violin - 261.63 Hz C4.wav,C4,false,Monophonic solo violin sample
+female_long_straight_a_C4 261.63 Hz.wav,C4,false,Monophonic female vocal sample
+male_long_straight_a_C4 261.63 Hz.wav,C4,false,Monophonic male vocal sample
+female_poly_vocal_piano_C4.wav,C4,true,Polyphonic vocal and piano sample

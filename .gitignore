@@ -1,0 +1,42 @@
+# Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+thesis_env/
+
+# Local IDE/editor files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Streamlit/local runtime files
+.streamlit/secrets.toml
+
+# Generated analysis outputs
+outputs/
+outputs_*/
+data/separated_audio/
+data/midi_output/
+
+# Alpha-test generated outputs
+alpha_test/input_audio/
+alpha_test/logs/
+alpha_test/figures/
+alpha_test/output_midi/
+alpha_test/batch_runs/
+
+# Spleeter/model cache or local model copies
+pretrained_models/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak

@@ -1,54 +1,54 @@
+from pathlib import Path
+
 import librosa
 import numpy as np
 import pandas as pd
-from pathlib import Path
-from scipy.signal import medfilt
 
 
-def hybrid_pyin(
+def extract_pyin_pitch_details(
     audio_path: str,
-    crepe_df: pd.DataFrame,
     fmin: float = librosa.note_to_hz("C1"),
     fmax: float = librosa.note_to_hz("C8"),
-    confidence_threshold: float = 0.5
-):
-    """
-    Hybrid pYIN pitch estimation guided by CREPE with adaptive weighted fusion.
-
-    Returns:
-        DataFrame with columns ['time', 'hybrid_f0']
-    """
-
+) -> pd.DataFrame:
+    """Run pYIN and return pitch plus voiced probability for hybrid fusion."""
     audio_path = Path(audio_path)
 
     if not audio_path.exists():
         raise FileNotFoundError(f"Audio file not found: {audio_path}")
 
-    # =========================
-    # Load audio
-    # =========================
     y, sr = librosa.load(audio_path, sr=44100, mono=True)
 
-    # =========================
-    # Run pYIN
-    # =========================
     f0, voiced_flag, voiced_prob = librosa.pyin(
         y,
         fmin=fmin,
         fmax=fmax,
         sr=sr,
         frame_length=8192,
-        hop_length=256
+        hop_length=256,
     )
 
     times = librosa.times_like(f0, sr=sr, hop_length=256)
 
-    pyin_df = pd.DataFrame({
+    return pd.DataFrame({
         "time": times,
         "pyin_f0": f0,
-        "voiced_prob": voiced_prob
+        "voiced_prob": voiced_prob,
     })
 
+
+def fuse_pyin_crepe(
+    pyin_df: pd.DataFrame,
+    crepe_df: pd.DataFrame,
+    fmin: float = librosa.note_to_hz("C1"),
+    fmax: float = librosa.note_to_hz("C8"),
+    confidence_threshold: float = 0.5,
+) -> pd.DataFrame:
+    """
+    Fuse pYIN and CREPE pitch tracks into the standardized hybrid output.
+
+    Returns:
+        DataFrame with columns ['time', 'hybrid_f0']
+    """
     # =========================
     # Align CREPE with pYIN
     # =========================
@@ -56,7 +56,7 @@ def hybrid_pyin(
         pyin_df.sort_values("time"),
         crepe_df.sort_values("time"),
         on="time",
-        direction="nearest"
+        direction="nearest",
     )
 
     hybrid_f0 = []
@@ -66,7 +66,6 @@ def hybrid_pyin(
     # Weighted Fusion
     # =========================
     for _, row in merged.iterrows():
-
         crepe_freq = row.get("frequency", np.nan)
         pyin_freq = row.get("pyin_f0", np.nan)
         crepe_conf = float(row.get("confidence", 0.0))
@@ -77,30 +76,18 @@ def hybrid_pyin(
 
         crepe_valid = np.isfinite(crepe_freq) and (crepe_freq > 0.0)
         pyin_valid = np.isfinite(pyin_freq) and (pyin_freq > 0.0)
+        crepe_reliable = crepe_valid and (c >= confidence_threshold)
 
         out = np.nan
 
-        # Requirement 1:
-        # If CREPE is unreliable, use pYIN directly.
-        if (not crepe_valid) or (c < 0.2):
-            out = pyin_freq if pyin_valid else np.nan
-
-        # Use CREPE only when pYIN is unavailable.
-        elif crepe_valid and (not pyin_valid):
-            out = crepe_freq if c >= (confidence_threshold * 0.6) else np.nan
-
-        # Both available -> disagreement handling + adaptive weighted fusion.
-        elif crepe_valid and pyin_valid:
+        if pyin_valid and crepe_reliable:
             disagreement_cents = abs(1200.0 * np.log2(
                 max(crepe_freq, pyin_freq) / max(1e-9, min(crepe_freq, pyin_freq))
             ))
 
-            # Requirement 2:
-            # Large disagreement (>300 cents) -> choose higher-confidence detector.
             if disagreement_cents > 300.0:
                 out = crepe_freq if c >= p else pyin_freq
             else:
-                # Keep adaptive weighted fusion when detectors are reliable.
                 crepe_rel = 0.10 + 0.90 * c
                 pyin_rel = 0.55 + 0.45 * p
 
@@ -125,36 +112,50 @@ def hybrid_pyin(
                     if jump_cents > 140.0 and c < 0.80:
                         out = (0.75 * pyin_freq) + (0.25 * out)
 
-        # Requirement 3:
-        # Never emit NaN or extreme outliers.
-        if not np.isfinite(out) or out <= 0.0:
-            if pyin_valid:
-                out = pyin_freq
-            elif crepe_valid:
-                out = crepe_freq
-            elif np.isfinite(prev_out) and prev_out > 0.0:
-                out = prev_out
-            else:
-                out = fmin
-
-        out = float(np.clip(out, fmin, fmax))
+        elif pyin_valid:
+            out = pyin_freq
+        elif crepe_reliable:
+            out = crepe_freq
+        else:
+            out = np.nan
 
         hybrid_f0.append(out)
-        prev_out = out
+        if np.isfinite(out) and out > 0.0:
+            prev_out = float(np.clip(out, fmin, fmax))
+            hybrid_f0[-1] = prev_out
 
     merged["hybrid_f0"] = hybrid_f0
 
-    # =========================
-    # Light smoothing
-    # =========================
-    merged["hybrid_f0"] = medfilt(merged["hybrid_f0"], kernel_size=5)
-
-    # Small interpolation only
-    merged["hybrid_f0"] = pd.Series(merged["hybrid_f0"]).interpolate(limit=1)
-    merged["hybrid_f0"] = merged["hybrid_f0"].ffill().bfill().fillna(fmin)
-    merged["hybrid_f0"] = merged["hybrid_f0"].clip(lower=fmin, upper=fmax)
+    series = pd.Series(merged["hybrid_f0"], dtype=float)
+    series = series.where(np.isfinite(series) & (series > 0.0))
+    series = series.interpolate(limit=1, limit_area="inside")
+    valid_mask = series.notna()
+    series = series.rolling(window=5, center=True, min_periods=1).median()
+    merged["hybrid_f0"] = series.where(valid_mask).clip(lower=fmin, upper=fmax)
 
     return merged[["time", "hybrid_f0"]]
+
+
+def hybrid_pyin(
+    audio_path: str,
+    crepe_df: pd.DataFrame,
+    fmin: float = librosa.note_to_hz("C1"),
+    fmax: float = librosa.note_to_hz("C8"),
+    confidence_threshold: float = 0.5,
+) -> pd.DataFrame:
+    """
+    Hybrid pYIN pitch estimation guided by CREPE with adaptive weighted fusion.
+    Unvoiced regions remain NaN so summary statistics and MIDI generation
+    do not treat low-confidence detector tails as real notes.
+    """
+    pyin_df = extract_pyin_pitch_details(audio_path, fmin=fmin, fmax=fmax)
+    return fuse_pyin_crepe(
+        pyin_df=pyin_df,
+        crepe_df=crepe_df,
+        fmin=fmin,
+        fmax=fmax,
+        confidence_threshold=confidence_threshold,
+    )
 
 
 # ==========================================================
@@ -163,34 +164,11 @@ def hybrid_pyin(
 def pure_pyin(
     audio_path: str,
     fmin: float = librosa.note_to_hz("C1"),
-    fmax: float = librosa.note_to_hz("C8")
-):
+    fmax: float = librosa.note_to_hz("C8"),
+) -> pd.DataFrame:
     """
     Pure pYIN pitch estimation.
     Returns DataFrame with columns ['time', 'hybrid_f0']
     """
-
-    audio_path = Path(audio_path)
-
-    if not audio_path.exists():
-        raise FileNotFoundError(f"Audio file not found: {audio_path}")
-
-    y, sr = librosa.load(audio_path, sr=44100, mono=True)
-
-    f0, voiced_flag, voiced_prob = librosa.pyin(
-        y,
-        fmin=fmin,
-        fmax=fmax,
-        sr=sr,
-        frame_length=8192,
-        hop_length=256
-    )
-
-    times = librosa.times_like(f0, sr=sr, hop_length=256)
-
-    df = pd.DataFrame({
-        "time": times,
-        "hybrid_f0": f0
-    })
-
-    return df
+    pyin_df = extract_pyin_pitch_details(audio_path, fmin=fmin, fmax=fmax)
+    return pyin_df.rename(columns={"pyin_f0": "hybrid_f0"})[["time", "hybrid_f0"]]

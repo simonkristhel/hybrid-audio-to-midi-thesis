@@ -6,3 +6,4 @@ crepe
 pretty_midi
 spleeter
 matplotlib
+streamlit
