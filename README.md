@@ -9,29 +9,40 @@ This project is a local Streamlit interface for testing a hybrid audio-to-MIDI p
 - PowerShell, Command Prompt, Terminal, or any shell
 - A web browser
 
-## Setup on Windows
+## Setup on Windows Using Command Prompt
 
-Open PowerShell in the project folder, then run:
+After downloading and extracting the ZIP file:
 
-```powershell
+1. Open the extracted project folder.
+2. Click the folder address bar at the top of File Explorer.
+3. Type `cmd`.
+4. Press Enter.
+
+This opens Command Prompt directly inside the project folder.
+
+Then run:
+
+```cmd
 python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+.venv\Scripts\activate.bat
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-If PowerShell blocks activation, run this once in the same PowerShell window:
+If `python` is not recognized, try using `py` instead:
 
-```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-.\.venv\Scripts\Activate.ps1
+```cmd
+py -m venv .venv
+.venv\Scripts\activate.bat
+py -m pip install --upgrade pip
+pip install -r requirements.txt
 ```
 
 ## Run the App
 
 From the project folder:
 
-```powershell
+```cmd
 streamlit run streamlit_app.py
 ```
 
