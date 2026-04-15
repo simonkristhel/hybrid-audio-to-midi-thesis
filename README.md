@@ -38,6 +38,12 @@ py -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
+If you already installed the requirements and see an error like `numpy.dtype size changed`, reinstall the pinned dependencies:
+
+```cmd
+pip install --force-reinstall -r requirements.txt
+```
+
 ## Run the App
 
 From the project folder:
