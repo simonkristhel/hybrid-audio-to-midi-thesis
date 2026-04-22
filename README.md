@@ -46,11 +46,16 @@ pip install --force-reinstall -r requirements.txt
 
 ## Run the App
 
-From the project folder:
+Each time you reopen the project or start a new terminal session, activate the virtual environment first.
+
+From the project folder, run:
 
 ```cmd
+.venv\Scripts\activate.bat
 streamlit run streamlit_app.py
 ```
+
+If you are reopening the app later, run the same two commands again from the project folder before launching Streamlit.
 
 The app should open in your browser. If it does not open automatically, copy the local URL shown in the terminal, usually:
 
