@@ -99,7 +99,13 @@ def timed_call(label: str, func, *args, **kwargs):
 def build_parallel_hybrid_pitch_df(mono_audio_path: str, timings: dict[str, float] | None = None) -> pd.DataFrame:
     """Run independent pYIN and CREPE extraction concurrently, then fuse their outputs."""
     with ThreadPoolExecutor(max_workers=2) as executor:
-        crepe_future = executor.submit(timed_call, "hybrid_crepe_extraction", extract_crepe_pitch, mono_audio_path)
+        crepe_future = executor.submit(
+            timed_call,
+            "hybrid_crepe_extraction",
+            extract_crepe_pitch,
+            mono_audio_path,
+            confidence_threshold=None,
+        )
         pyin_future = executor.submit(timed_call, "hybrid_pyin_extraction", extract_pyin_pitch_details, mono_audio_path)
 
         crepe_label, crepe_df, crepe_elapsed = crepe_future.result()
@@ -139,7 +145,7 @@ def build_pitch_df_for_mode(
         except Exception:
             if timings is not None:
                 timings["hybrid_sequential_fallback_used"] = 1.0
-            crepe_df = extract_crepe_pitch(mono_audio_path)
+            crepe_df = extract_crepe_pitch(mono_audio_path, confidence_threshold=None)
             return hybrid_pyin(mono_audio_path, crepe_df)
 
     raise ValueError("Mode must be one of: pyin, crepe, hybrid")
